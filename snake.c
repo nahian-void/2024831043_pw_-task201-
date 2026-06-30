@@ -182,9 +182,11 @@ void drawText(char text[], int x, int y, SDL_Color color)
 
 void checkWall()
 {
-    if (snakeX[0] < 0)    gameOver = true;
-    if (snakeX[0] >= COLS) gameOver = true;
-    if (snakeY[0] < 0)    gameOver = true;
+    if (snakeX[0] < 0)   {snakeX[0]=COLS-1;
+                           score=score-5;} 
+    if (snakeX[0] >= COLS) {snakeX[0]=0;
+                            score=score-5;}
+   if (snakeY[0] < 0)    gameOver = true;
     if (snakeY[0] >= ROWS) gameOver = true;
 }
 
