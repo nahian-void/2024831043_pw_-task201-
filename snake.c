@@ -4,6 +4,7 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<time.h>
+#include <SDL_ttf.h>
 #define windowwidth 600
 #define windowheight 600
 #define cellsize 20
@@ -12,6 +13,7 @@
 #define maxsnake 400
 SDL_Window *window=NULL;
 SDL_Renderer *renderer=NULL;
+TTF_Font *font = NULL;
 
 int snakeX[maxsnake];
 int snakeY[maxsnake];
@@ -123,6 +125,18 @@ printf("Score : %d\n",score);
 spawnFood();
 }}
 
+void drawText(char text[],int x,int y,SDL_Color color)
+{SDL_Surface *surface=TTF_RenderText_Solid(font,text,color);
+SDL_Texture *texture=SDL_CreateTextureFromSurface(renderer,surface);
+SDL_Rect rect;
+rect.x=x;
+rect.y=y;
+rect.w=surface->w;
+rect.h=surface->h;
+SDL_RenderCopy(renderer,texture,NULL,&rect);
+SDL_FreeSurface(surface);
+SDL_DestroyTexture(texture);}
+
 void checkWall()
 {if(snakeX[0]<0) gameOver=true;
 if(snakeX[0]>=COLS) gameOver=true;
@@ -136,15 +150,34 @@ void checkSelf()
 break;}}}
 
 void render()
-{SDL_SetRenderDrawColor(renderer,30,30,30,255);
+{if(gameOver)
+{SDL_SetRenderDrawColor(renderer,180,0,0,255);
+SDL_RenderClear(renderer);
+SDL_Color white={255,255,255,255};
+char scoreText[50];
+sprintf(scoreText,"Final Score : %d",score);
+drawText("GAME OVER",170,220,white);
+drawText(scoreText,170,280,white);
+SDL_RenderPresent(renderer);
+return;}
+SDL_SetRenderDrawColor(renderer,30,30,30,255);
 SDL_RenderClear(renderer);
 drawSnake();
 drawFood();
+SDL_Color white={255,255,255,255};
+char scoreText[50];
+sprintf(scoreText,"Score : %d",score);
+drawText(scoreText,10,10,white);
 SDL_RenderPresent(renderer);}
 
 int main(int argc,char *argv[])
 {srand(time(NULL));
 SDL_Init(SDL_INIT_VIDEO);
+TTF_Init();
+font = TTF_OpenFont("C:/Windows/Fonts/arial.ttf", 36);
+if(font==NULL)
+{printf("Font loading failed\n");
+return 1;}
 window=SDL_CreateWindow("Snake Game",  
 SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,windowwidth,windowheight,0);
 
@@ -169,6 +202,8 @@ SDL_Delay(120);}
 
 SDL_DestroyRenderer(renderer);
 SDL_DestroyWindow(window);
+TTF_CloseFont(font);
+TTF_Quit();
 SDL_Quit();
 return 0;
 }
